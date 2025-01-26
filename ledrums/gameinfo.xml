@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gameList>
+  <game>
+    <path>./LE Drums.sh</path>
+    <name>LE Drums</name>
+    <desc>Featuring 9 drum kits by Low Entropy, and 2 custom kits where you can put in your own samples to make beats with!</desc>
+    <developer>Xanthia Coder</developer>
+    <genre>Others</genre>
+    <image>./ledrums/screenshot.jpg</image>
+  </game>
+</gameList>

@@ -1,0 +1,33 @@
+{
+  "version": 3,
+  "name": "ledrums.zip",
+  "items": [
+    "LE Drums.sh",
+    "ledrums"
+  ],
+  "items_opt": [],
+  "attr": {
+    "title": "LEDrums",
+    "porter": [
+      "xanthia"
+    ],
+    "desc": "Featuring 9 drum kits by Low Entropy, and 2 custom kits where you can put in your own samples to make beats with!",
+    "desc_md": null,
+    "inst": "Ready to run.",
+    "inst_md": null,
+    "genres": [
+      "other"
+    ],
+    "image": null,
+    "rtr": true,
+    "exp": false,
+    "runtime": null,
+    "reqs": [
+      "hires"
+    ],
+    "arch": [
+      "aarch64"
+    ],
+    "min_glibc": ""
+  }
+}
