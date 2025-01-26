@@ -17,7 +17,7 @@ source $controlfolder/control.txt
 get_controls
 
 # Variables
-GAMEDIR=/$directory/ports/goldminer
+GAMEDIR=/$directory/ports/ledrums
 CONFDIR="$GAMEDIR/conf/"
 cd $GAMEDIR
 
