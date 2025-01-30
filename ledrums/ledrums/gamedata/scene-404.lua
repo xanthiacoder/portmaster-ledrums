@@ -7,8 +7,6 @@
 -- .update() for frame by frame activity
 -- .draw() for the draw state
 
-
-
 local sceneNumber = 404
 
 -- music data for this scene
@@ -24,8 +22,6 @@ local sample = {
 	[7] = "Acid-Bass3.ogg",
 	[8] = "Acid-Crash.wav",
 	}
-
-	
 
 local seq = {}
 -- define 4 loops
@@ -75,7 +71,6 @@ end
 end
 end
 
-
 local ledAlpha = {}
 ledAlpha[1] = 1 -- the transparency of 1st led
 ledAlpha[2] = 0 -- the transparency of 2st led
@@ -94,11 +89,8 @@ local tickChange = clock.tick -- to tell when the tick has changed
 local tockChange = clock.tock -- to tell when the tock has changed
 local tapTempo = love.timer.getTime() -- init to detect delta to change tempo
 
-
-
 -- graphical overlay for this scene's help
 local helpTextOverlay = love.graphics.newImage("bgart/transparent-black-50.png")
-
 
 -- graphic highlight for beat editor
 local beatHighlight = love.graphics.newImage("pic/beat-highlight.png")
@@ -119,9 +111,6 @@ local K = {}
 
 local helpText = ""
 
-
-
-
 local function clearLoop(loop)
 
 local j = 1
@@ -139,7 +128,7 @@ end
 end
 
 game.tooltip = "Current loop data cleared."
-end
+end -- clearLoop
 
 
 local function saveData()
@@ -240,9 +229,7 @@ local function saveData()
 
 	game.tooltip = "Scene "..sceneNumber.." data saved at " .. math.floor(game.time + love.timer.getTime())
 
-end
-
-
+end -- saveData
 
 
 -- K.init is for loading assets for the scene (done only once at game load)
@@ -252,8 +239,7 @@ function K.init()
 	-- help text to appear
 	help[sceneNumber] = ""
 	
-end
-
+end -- K.init
 
 
 -- K.start is to init anything when scene starts, can be reloaded multiple times
@@ -373,20 +359,39 @@ function K.start()
 	end -- end read of 16 sub-beats
 	end -- end read of 8 tracks
 
-end
-
-
+end -- K.start
 
 
 -- K.input is for keymapping
 function K.input()
-	-- detecting key pressed
-function love.keypressed( key, scancode, isrepeat )
 
-   if scancode == "w" then
+function love.gamepadpressed(joystick, button)
+
+	-- detecting SELECT combos when buttonCooldown == 0
+	if buttonCooldown == 0 then
+		-- SELECT + L1
+		if gamepad:isGamepadDown("back") and gamepad:isGamepadDown("leftshoulder") then
+			buttonCooldown = 15 -- sets a delay before accepting input again
+	      	saveData() -- force scene autosave
+	      	scene[403].input() -- change input key-map to 403's
+	      	scene[403].start() -- run 403 start process
+	      	scene.current = 403 -- change to 403 scene
+			scene.previous = sceneNumber -- put current scene into scene history
+		end
+		-- SELECT + R1
+		if gamepad:isGamepadDown("back") and gamepad:isGamepadDown("rightshoulder") then
+			buttonCooldown = 15 -- sets a delay before accepting input again
+	      	saveData() -- force scene autosave
+	      	scene[405].input() -- change input key-map to 405's
+	      	scene[405].start() -- run 405 start process
+	      	scene.current = 405 -- change to 405 scene
+			scene.previous = sceneNumber -- put current scene into scene history
+		end		
+	end
+
+	-- detecting D-Pad
+	if button == "dpup" then
       -- D-Pad UP pressed
-      triggerReport = "D-Pad UP pressed"
-      dpadState[1] = "dn"
       love.audio.stop(sfx[1])
       love.audio.play(sfx[1])
 	  trackVolumeMeter[1] = 50
@@ -396,11 +401,11 @@ function love.keypressed( key, scancode, isrepeat )
 	  	else
       		seq.loop[currentLoop].track[1].tick[clock.tick].tock[clock.tock] = "-"
       	end
+      	saveData()
       end
-   elseif scancode == "a" then
+	end
+	if button == "dpleft" then
       -- D-Pad LEFT pressed
-      triggerReport = "D-Pad LEFT pressed"
-      dpadState[2] = "dn"
       love.audio.stop(sfx[2])
       love.audio.play(sfx[2])
 	  trackVolumeMeter[2] = 50
@@ -410,11 +415,11 @@ function love.keypressed( key, scancode, isrepeat )
 		  else
 	      	seq.loop[currentLoop].track[2].tick[clock.tick].tock[clock.tock] = "-"
 	      end
+		  saveData()
 	  end
-   elseif scancode == "s" then
+	end
+	if button == "dpdown" then
       -- D-Pad DOWN pressed
-      triggerReport = "D-Pad DOWN pressed"
-      dpadState[3] = "dn"
       love.audio.stop(sfx[3])
       love.audio.play(sfx[3])
 	  trackVolumeMeter[3] = 50
@@ -424,11 +429,11 @@ function love.keypressed( key, scancode, isrepeat )
 		  else
 	      	seq.loop[currentLoop].track[3].tick[clock.tick].tock[clock.tock] = "-"
 	      end
+	      saveData()
 	  end
-   elseif scancode == "d" then
+	end
+	if button == "dpright" then
       -- D-Pad RIGHT pressed
-      triggerReport = "D-Pad RIGHT pressed"
-      dpadState[4] = "dn"
       love.audio.stop(sfx[4])
       love.audio.play(sfx[4])
 	  trackVolumeMeter[4] = 50
@@ -438,11 +443,13 @@ function love.keypressed( key, scancode, isrepeat )
 		  else
 	      	seq.loop[currentLoop].track[4].tick[clock.tick].tock[clock.tock] = "-"
 	      end
+	      saveData()
 	  end
-   elseif scancode == "space" then
-      -- Button X pressed
-      triggerReport = "Button X pressed"
-      fbtnState[1] = "dn"
+	end
+
+	-- detecting Face Buttons, Top (Y), Left (X), Bottom (A), Right (B)
+	if button == "y" then
+      -- Top Button pressed
       love.audio.stop(sfx[8])
       love.audio.play(sfx[8])
 	  trackVolumeMeter[8] = 50
@@ -452,11 +459,11 @@ function love.keypressed( key, scancode, isrepeat )
 		  else
 	      	seq.loop[currentLoop].track[8].tick[clock.tick].tock[clock.tock] = "-"
 	      end
+	      saveData()
 	  end
-   elseif scancode == "b" then
-      -- Button Y pressed
-      triggerReport = "Button Y pressed"
-      fbtnState[2] = "dn"
+	end
+	if button == "x" then
+      -- Left Button pressed
       love.audio.stop(sfx[5])
       love.audio.play(sfx[5])
 	  trackVolumeMeter[5] = 50
@@ -466,11 +473,11 @@ function love.keypressed( key, scancode, isrepeat )
 		  else
 	      	seq.loop[currentLoop].track[5].tick[clock.tick].tock[clock.tock] = "-"
 	      end
+	      saveData()
 	  end
-   elseif scancode == "lshift" then
-      -- Button B pressed
-      triggerReport = "Button B pressed"
-      fbtnState[3] = "dn"
+	end
+	if button == "a" then
+      -- Bottom Button pressed
       love.audio.stop(sfx[6])
       love.audio.play(sfx[6])
 	  trackVolumeMeter[6] = 50
@@ -480,11 +487,11 @@ function love.keypressed( key, scancode, isrepeat )
 		  else
 	      	seq.loop[currentLoop].track[6].tick[clock.tick].tock[clock.tock] = "-"
 	      end
+	      saveData()
 	  end
-   elseif scancode == "z" then
-      -- Button A pressed
-      triggerReport = "Button A pressed"
-      fbtnState[4] = "dn"
+	end
+	if button == "b" then
+      -- Right Button pressed
       love.audio.stop(sfx[7])
       love.audio.play(sfx[7])
 	  trackVolumeMeter[7] = 50
@@ -494,15 +501,12 @@ function love.keypressed( key, scancode, isrepeat )
 		  else
 	      	seq.loop[currentLoop].track[7].tick[clock.tick].tock[clock.tock] = "-"
 	      end
+	      saveData()
 	  end
-   elseif scancode == "escape" then
-      -- SELECT pressed
-      triggerReport = "SELECT pressed"
-      miscState[1] = "dn"
-   elseif scancode == "return" then
+	end
+
+	if button == "start" then
       -- START pressed
-      triggerReport = "START pressed"
-      miscState[2] = "dn"
       clock.tick = 1
       clock.tock = 1
       clock.time = love.timer.getTime()
@@ -519,276 +523,181 @@ function love.keypressed( key, scancode, isrepeat )
       else
       	song.playing = false
       end
-   elseif scancode == "volumeup" then
-      -- VOLUME UP pressed
-      triggerReport = "Volume UP pressed"
-      miscState[3] = "dn"
-   elseif scancode == "volumedown" then
-      -- VOLUME DOWN pressed
-      triggerReport = "Volume DOWN pressed"
-      miscState[4] = "dn"
-   elseif scancode == "up" then
-      -- L-Stick UP
-      triggerReport = "L-Stick UP pressed"
-      lstkState[1] = "dn"
-	  if song.halfTime then
-	  	song.halfTime = false
-	  else
-	  	song.halfTime = true
-	  end
-   elseif scancode == "left" then
-      -- L-Stick LEFT
-      triggerReport = "L-Stick LEFT pressed"
-      lstkState[2] = "dn"
-            
-      -- skip to exitscreen scene
-      if love.keyboard.isScancodeDown("escape") then  -- SELECT + Lstk-LEFT detected
-      	saveData() -- force scene autosave
-      	scene[999].input() -- change input key-map to 999's
-      	scene[999].start() -- change input key-map to 999's
-      	scene.current = 999 -- change to exitscreen scene
-		scene.previous = sceneNumber -- put current scene into scene history
-      else
-		  -- reduce song's tempo
-		seq.loop[currentLoop].tempo = seq.loop[currentLoop].tempo - 1
-		song.tempo = seq.loop[currentLoop].tempo      	
-      end
+	end
 
-   elseif scancode == "down" then
-      -- L-Stick DOWN
-      triggerReport = "L-Stick DOWN pressed"
-      lstkState[3] = "dn"
-      -- tapTempo detection
-	  if (love.timer.getTime() - tapTempo) > 2 then
-		 -- new attempt to tap tempo detected, recalibrate
-	     tapTempo = love.timer.getTime()
-	  else
-		seq.loop[currentLoop].tempo = math.floor(60 / (love.timer.getTime() - tapTempo))
+	-- detecting L1 / R1 without SELECT pressed
+	if button == "leftshoulder" and not gamepad:isGamepadDown("back") then
+		-- L1 pressed
+		saveData()
+		currentLoop = 1
 		song.tempo = seq.loop[currentLoop].tempo
-	    tapTempo = love.timer.getTime() -- init for the next detection
-	  end
-   elseif scancode == "right" then
-      -- L-Stick RIGHT
-      triggerReport = "L-Stick RIGHT pressed"
-      lstkState[4] = "dn"
-
-	  -- increase song's tempo
-	seq.loop[currentLoop].tempo = seq.loop[currentLoop].tempo + 1
-	song.tempo = seq.loop[currentLoop].tempo
+	end
+	if button == "rightshoulder" and not gamepad:isGamepadDown("back") then
+		-- R1 pressed
+		saveData()
+		currentLoop = 4
+		song.tempo = seq.loop[currentLoop].tempo
+	end
 
 
-   elseif scancode == "l" then
-      -- Back L1 pressed
-		if not love.keyboard.isScancodeDown("escape") then -- SELECT not pressed
-			saveData()
-			currentLoop = 1
-			song.tempo = seq.loop[currentLoop].tempo
-		end
-   elseif scancode == "x" then
-      -- Back L2 pressed
-      triggerReport = "Back L2 pressed"
-      bbtnState[2] = "dn"
+end -- love.gamepadpressed
+
+
+function love.gamepadreleased(joystick, button)
+
+	-- detecting Face Buttons, Top (Y), Left (X), Bottom (A), Right (B)
+	if button == "y" then
+      -- Top Button released
+	end
+	if button == "x" then
+      -- Left Button released
+	end
+	if button == "a" then
+      -- Bottom Button released
+	end
+	if button == "b" then
+      -- Right Button released
+	end
+
+end -- love.gampadreleased
+
+
+function love.gamepadaxis(joystick, axis, value)
+
+	-- detecting L2 / R2 
+	if gamepad:getGamepadAxis("triggerleft") == 1 then
+      -- L2 pressed
       saveData()
       currentLoop = 2
 	  song.tempo = seq.loop[currentLoop].tempo
-   elseif scancode == "r" then
-      -- Right R1 pressed
-		if not love.keyboard.isScancodeDown("escape") then -- SELECT not pressed
-			saveData()
-			currentLoop = 4
-			song.tempo = seq.loop[currentLoop].tempo
-		end
-   elseif scancode == "y" then
+	end
+	if gamepad:getGamepadAxis("triggerright") == 1 then
       -- Right R2 pressed
-      triggerReport = "Back R2 pressed"
-      bbtnState[4] = "dn"
       saveData()
       currentLoop = 3
       song.tempo = seq.loop[currentLoop].tempo
-   elseif scancode == "1" then
-      -- L-Stick L3 pressed, edit gptokeyb for L3 = "1"
-      triggerReport = "L-Stick L3 pressed"
-      miscState[5] = "dn"
-   elseif scancode == "2" then
-      -- R-Stick R3 pressed, edit gptokeyb for R3 = "2"
-      triggerReport = "R-Stick R3 pressed"
-      miscState[6] = "dn"
-   end
-end
-
--- detecting key released
-function love.keyreleased( key, scancode )
-
-   if scancode == "w" then
-      -- D-Pad UP released
-      triggerReport = "D-Pad UP released"
-      dpadState[1] = "up"
-   elseif scancode == "a" then
-      -- D-Pad LEFT released
-      triggerReport = "D-Pad LEFT released"
-      dpadState[2] = "up"
-   elseif scancode == "s" then
-      -- D-Pad DOWN released
-      triggerReport = "D-Pad DOWN released"
-      dpadState[3] = "up"
-   elseif scancode == "d" then
-      -- D-Pad RIGHT released
-      triggerReport = "D-Pad RIGHT released"
-      dpadState[4] = "up"
-   elseif scancode == "space" then
-      -- Button X released
-      triggerReport = "Button X released"
-      fbtnState[1] = "up"
-   elseif scancode == "b" then
-      -- Button Y released
-      triggerReport = "Button Y released"
-      fbtnState[2] = "up"
-   elseif scancode == "lshift" then
-      -- Button B released
-      triggerReport = "Button B released"
-      fbtnState[3] = "up"
-   elseif scancode == "z" then
-      -- Button A released
-      triggerReport = "Button A released"
-      fbtnState[4] = "up"
-   elseif scancode == "escape" then
-      -- SELECT released
-      triggerReport = "SELECT released"
-      miscState[1] = "up"
-   elseif scancode == "return" then
-      -- START released
-      triggerReport = "START released"
-      miscState[2] = "up"
-   elseif scancode == "volumeup" then
-      -- VOLUME UP released
-      triggerReport = "Volume UP released"
-      miscState[3] = "up"
-   elseif scancode == "volumedown" then
-      -- VOLUME DOWN released
-      triggerReport = "Volume DOWN released"
-      miscState[4] = "up"
-   elseif scancode == "up" then
-      -- L-Stick UP released
-      triggerReport = "L-Stick UP released"
-      lstkState[1] = "up"
-   elseif scancode == "left" then
-      -- L-Stick LEFT released
-      triggerReport = "L-Stick LEFT released"
-      lstkState[2] = "up"
-   elseif scancode == "down" then
-      -- L-Stick DOWN released
-      triggerReport = "L-Stick DOWN released"
-      lstkState[3] = "up"
-   elseif scancode == "right" then
-      -- L-Stick RIGHT released
-      triggerReport = "L-Stick RIGHT released"
-      lstkState[4] = "up"
-   elseif scancode == "l" then
-      -- Back L1 released
-    	-- move to previous scene 403
-      if love.keyboard.isScancodeDown("escape") then  -- SELECT + L1 release detected
-      	saveData() -- force scene autosave
-      	scene[403].input() -- change input key-map to 403's
-      	scene[403].start() -- run 403 start process
-      	scene.current = 403 -- change to 403 scene
-		scene.previous = sceneNumber -- put current scene into scene history
-      end
-
-   elseif scancode == "x" then
-      -- Back L2 released
-      triggerReport = "Back L2 released"
-      bbtnState[2] = "up"
-   elseif scancode == "r" then
-      -- Right R1 released
-    	-- move to next scene 405
-      if love.keyboard.isScancodeDown("escape") then  -- SELECT + R1 release detected
-      	saveData() -- force scene autosave
-      	scene[405].input() -- change input key-map to 401's
-      	scene[405].start() -- run 401 start process
-      	scene.current = 405 -- change to 401 scene
-		scene.previous = sceneNumber -- put current scene into scene history
-      end
-
-   elseif scancode == "y" then
-      -- Right R2 released
-      triggerReport = "Back R2 released"
-      bbtnState[4] = "up"
-    elseif scancode == "1" then
-      -- L-Stick L3 released, edit gptokeyb for L3 = "1"
-      triggerReport = "L-Stick L3 released"
-      miscState[5] = "up"
-   elseif scancode == "2" then
-      -- R-Stick R3 released, edit gptokeyb for R3 = "2"
-      triggerReport = "R-Stick R3 released"
-      miscState[6] = "up"
-  end
-end
-
--- R36S default for R-Stick (mouse) 
-function love.mousemoved( x, y, dx, dy, istouch )
-
-	triggerReport = "x:" .. x .. " y:" .. y .. " dx:" .. dx .. " dy:" .. dy
-	if dy < -1 and (mouseCooldown == 0)then
-		rstkState[1] = "ok" -- R-Stick UP
-		mouseCooldown = 15 -- 1/4 second for 60 fps
-	  -- clear currentLoop
-      if love.keyboard.isScancodeDown("escape") then  -- SELECT + Rstk-UP detected
-			clearLoop(currentLoop)
-      else
-		  -- display instruction for CLEAR
-		  game.tooltip = "Hold SELECT and Right-Stick UP to clear loop"
-      end
-
 	end
-	if dx < -1 and (mouseCooldown == 0) then
-		rstkState[2] = "ok" -- R-Stick LEFT
-		mouseCooldown = 15 -- 1/4 second for 60 fps
-		-- Move Track beat selection backwards
-		if (clock.tick * clock.tock) > 1 then
-			clock.tock = clock.tock - 1
-			if clock.tock == 0 then
-				clock.tick = clock.tick - 1
+
+	if axis == "leftx" then
+		-- SELECT + lstk LEFT
+		if (gamepad:getGamepadAxis("leftx") < -0.8) and gamepad:isGamepadDown("back") and buttonCooldown == 0 then
+			-- SELECT + lstk LEFT detected to switch scene QUIT
+			buttonCooldown = 15 -- sets a delay before accepting input again
+		    saveData() -- force scene autosave
+		    scene[999].input() -- change input key-map to 999's
+		    scene[999].start() -- change input key-map to 999's
+		    scene.current = 999 -- change to exitscreen scene
+			scene.previous = sceneNumber -- put current scene into scene history
+		end
+	end
+	if axis == "leftx" then
+		-- lstk LEFT to slow down tempo
+		if (gamepad:getGamepadAxis("leftx") < -0.8) and not gamepad:isGamepadDown("back") and buttonCooldown == 0 then
+			-- lstk LEFT detected
+			buttonCooldown = 15 -- sets a delay before accepting input again
+		    -- reduce song's tempo
+			seq.loop[currentLoop].tempo = seq.loop[currentLoop].tempo - 1
+			song.tempo = seq.loop[currentLoop].tempo      	
+		end
+	end	
+	if axis == "leftx" then
+		-- lstk RIGHT to speed up tempo
+		if (gamepad:getGamepadAxis("leftx") > 0.8) and buttonCooldown == 0 then
+			-- lstk RIGHT detected
+			buttonCooldown = 15 -- sets a delay before accepting input again
+		    -- increase song's tempo
+			seq.loop[currentLoop].tempo = seq.loop[currentLoop].tempo + 1
+			song.tempo = seq.loop[currentLoop].tempo
+		end
+	end	
+
+	if axis == "lefty" then
+		if (gamepad:getGamepadAxis("lefty") < -0.8) and buttonCooldown == 0 then
+			-- lstk UP detected
+			buttonCooldown = 15
+			-- toggle 1/2 time tempo
+		  if song.halfTime then
+		  	song.halfTime = false
+		  else
+		  	song.halfTime = true
+		  end
+		end
+		if (gamepad:getGamepadAxis("lefty") > 0.8) and buttonCooldown == 0 then
+			-- lstk DOWN detected
+			buttonCooldown = 15 -- sets a delay before accepting input again
+	      -- tapTempo detection
+		  if (love.timer.getTime() - tapTempo) > 2 then
+			 -- new attempt to tap tempo detected, recalibrate
+		     tapTempo = love.timer.getTime()
+		  else
+			seq.loop[currentLoop].tempo = math.floor(60 / (love.timer.getTime() - tapTempo))
+			song.tempo = seq.loop[currentLoop].tempo
+		    tapTempo = love.timer.getTime() -- init for the next detection
+		  end
+
+		end
+	end
+	
+	if axis == "rightx" then
+		if (gamepad:getGamepadAxis("rightx") < -0.8) and buttonCooldown == 0 then
+			-- rstk LEFT detected to move playhead left
+			buttonCooldown = 15
+			-- Move Track beat selection backwards
+			if (clock.tick * clock.tock) > 1 then
+				clock.tock = clock.tock - 1
+				if clock.tock == 0 then
+					clock.tick = clock.tick - 1
+					clock.tock = 4
+				end
+			else
+				-- do this when at 1.1, cycle to the end
+				clock.tick = 4
 				clock.tock = 4
 			end
-		else
-			-- do this when at 1.1, cycle to the end
-			clock.tick = 4
-			clock.tock = 4
 		end
-	end
-	if dy > 1 and (mouseCooldown == 0) then
-		rstkState[3] = "ok" -- R-Stick DOWN
-		mouseCooldown = 15 -- 1/4 second for 60 fps
-		-- toggle Play/Rec mode
-		if song.recording then
-			song.recording = false
-		else
-			song.recording = true
-		end
-	end
-	if dx > 1 and (mouseCooldown == 0) then
-		rstkState[4] = "ok" -- R-Stick RIGHT
-		mouseCooldown = 15 -- 1/4 second for 60 fps
-		-- Move Track beat selection forwards
-		if (clock.tick * clock.tock) < 16 then
-			clock.tock = clock.tock + 1
-			if clock.tock == 5 then
-				clock.tick = clock.tick + 1
+		if (gamepad:getGamepadAxis("rightx") > 0.8) and buttonCooldown == 0 then
+			-- rstk RIGHT detected to move playhead right
+			buttonCooldown = 15
+			-- Move Track beat selection forwards
+			if (clock.tick * clock.tock) < 16 then
+				clock.tock = clock.tock + 1
+				if clock.tock == 5 then
+					clock.tick = clock.tick + 1
+					clock.tock = 1
+				end
+			else
+				-- do this when at 4.4, cycle back to the beginning
+				clock.tick = 1
 				clock.tock = 1
 			end
-		else
-			-- do this when at 4.4, cycle back to the beginning
-			clock.tick = 1
-			clock.tock = 1
 		end
 	end
-end
 
-end
+	if axis == "righty" then
+		if (gamepad:getGamepadAxis("righty") < -0.8) and not gamepad:isGamepadDown("back") then
+			-- rstk UP detected to clear loop, but no SELECT held
+			  -- display instruction for CLEAR
+			  game.tooltip = "Hold SELECT and Right-Stick UP to clear loop"
+		end
+		if (gamepad:getGamepadAxis("righty") < -0.8) and gamepad:isGamepadDown("back") then
+			-- SELECT + rstk UP detected to clear loop
+			clearLoop(currentLoop)
+		end
+		if (gamepad:getGamepadAxis("righty") > 0.8) and buttonCooldown == 0 then
+			-- rstk DOWN to toggle Play | Rec mode
+			buttonCooldown = 15
+			-- toggle Play/Rec mode
+			if song.recording then
+				song.recording = false
+			else
+				song.recording = true
+			end	
+		end
+	end
 
+end -- love.gamepadaxis
 
-
-
+end -- K.input
 
 
 -- this scene's update for each frame
@@ -825,17 +734,13 @@ function K.update()
 	end
 
 
-end
-
-
-
-
+end -- K.update
 
 
 -- this scene's screen draws go here
 function K.draw()
 	love.graphics.setFont(gameFont)
-    if love.keyboard.isScancodeDown("escape") then
+    if gamepad:isGamepadDown("back") then -- using joystick to detect SELECT button pressed
     	helpText = help[sceneNumber]
 		love.graphics.draw(helpTextOverlay, 0, 0) -- draw this scene's helpTextOverlay
 	    love.graphics.printf(helpText, gameFont, 50, 80, 540, "left") -- display help text
@@ -851,7 +756,6 @@ function K.draw()
 --		love.graphics.draw(redLed, 340, 236) -- 3rd led, red
 --		love.graphics.draw(redLed, 400, 236) -- 4th led, red
 		love.graphics.setColor(1, 1, 1, 1) -- reset alpha
-
 
 		-- display seq data
 		-- seq in graphics bar display
@@ -881,8 +785,6 @@ function K.draw()
 		end
 		-- draw the currentLoop's green LED
 		love.graphics.draw(greenLED, 138 + ((currentLoop-1)*152), 45)	
-
-
 
 		-- seq in text display
 		love.graphics.setFont(monoFont)
@@ -914,7 +816,6 @@ function K.draw()
 		else
 			love.graphics.draw(indicatorPlay, 360, 340)
 		end
-		
 
 		-- draw samples loaded
 		love.graphics.print(string.sub(sample[1],1,22), 192, 173)
@@ -936,8 +837,6 @@ function K.draw()
 		love.graphics.line(454,300, 454,300-trackVolumeMeter[7])
 		love.graphics.line(458,300, 458,300-trackVolumeMeter[8])
 
-
-
 	    -- sub-beat = ((clock.tick-1)*4) + clock.tock
 	    -- sub-beat - 1 = (((clock.tick-1)*4) + clock.tock) - 1
 	    -- spacing = ((((clock.tick-1)*4) + clock.tock) - 1 ) * 38
@@ -947,28 +846,20 @@ function K.draw()
 		-- checking on ticks and tocks, to match tempo
 		love.graphics.printf(clock.tick .. "." .. clock.tock, bigFont, 346, 380, 100, "center") -- show ticks
 
-
-
 		-- debug printscreen
 		-- display game.system
 		love.graphics.setFont(monoFont)
 		love.graphics.print("System: "..game.system, 334, 280) -- show game system
 		love.graphics.print("Used: "..math.floor(game.time + love.timer.getTime()), 334, 290) -- show game time
 
-
 		-- display game tooltip
 		love.graphics.printf(game.tooltip, smallFont, 0, 458, 640, "left")
 
 		-- display power
 		game.power.state, game.power.percent, game.power.timeleft = love.system.getPowerInfo( )
-	if game.system == "R36S" then
-		love.graphics.printf(game.power.state .. " " .. game.power.percent .. "%", smallFont, 0, 458, 640, "right") -- show game power
+		love.graphics.printf(tostring(game.power.state) .. " " .. tostring(game.power.percent) .. "%", smallFont, 0, 458, 640, "right") -- show game power
 	end
 
-
-
-    end
-
-end
+end -- K.draw
 
 return K

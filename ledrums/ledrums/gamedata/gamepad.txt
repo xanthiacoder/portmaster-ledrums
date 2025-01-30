@@ -1,0 +1,53 @@
+https://love2d.org/wiki/GamepadButton
+
+-- without gptk
+
+dpup
+: D-pad up. (keyboard scancode = "up")
+dpdown
+: D-pad down. (keyboard scancode = "down")
+dpleft
+: D-pad left. (keyboard scancode = "left")
+dpright
+: D-pad right. (keyboard scancode = "right")
+
+a
+: Bottom face button (A). (keyboard scancode = "x")
+b
+: Right face button (B). (keyboard scancode = "z")
+x
+: Left face button (X). (keyboard scancode = "c")
+y
+: Top face button (Y). (keyboard scancode = "a")
+
+back
+: Back button. (select) (keyboard scancode = "escape" only on release)
+guide
+: Guide button. (menu) (keyboard scancode = "return" only on release)
+start
+: Start button. (keyboard scancode = "return" only on release)
+
+leftshoulder
+: Left bumper. (L1) (keyboard scancode = "rshift")
+rightshoulder
+: Right bumper. (R1) (keyboard scancode = "lshift")
+
+leftstick
+: Left stick click button. 
+rightstick
+: Right stick click button.
+
+joysticks
+
+leftx
+: The x-axis of the left thumbstick. (keyboard scancode = "a" [left, -1] and "d" [right, 1])
+lefty
+: The y-axis of the left thumbstick. (keyboard scancode = "w" [up, -1] and "s" [down, 1])
+rightx
+: The x-axis of the right thumbstick. (keyboard scancode = "left" [left, -1] and "right" [right, 1])
+righty
+: The y-axis of the right thumbstick. (keyboard scancode = "end" [up, -1] and "home" [down, 1])
+triggerleft
+: Left analog trigger. (L2) (keyboard scancode = "home")
+triggerright
+: Right analog trigger. (R2) (keyboard scancode = "end")

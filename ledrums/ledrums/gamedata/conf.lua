@@ -1,13 +1,13 @@
 function love.conf(t)
     t.version = "11.5"                  -- The LÖVE version this game was made for (string)
---    t.identity = "LEDrums"              -- The identity which is important for save dir
-    t.window.title = "Low Entropy Drums"-- The window title (string)
-    t.window.width = 640
-    t.window.height = 480
-    t.window.borderless = false         -- Remove all border visuals from the window (boolean)
+--    t.identity = "LEDrums"            -- The identity which is important for save dir
+    t.window.title = "LE Drums"         -- The window title (string)
+--    t.window.width = 640
+--    t.window.height = 480
+    t.window.borderless = true          -- Remove all border visuals from the window (boolean)
     t.window.resizable = false          -- Let the window be user-resizable (boolean)
-    t.window.fullscreen = false         -- Enable fullscreen (boolean)
-    t.window.fullscreentype = "desktop" -- Choose between "desktop" fullscreen or "exclusive" fullscreen mode (string)
+    t.window.fullscreen = true          -- Enable fullscreen (boolean)
+    t.window.fullscreentype = "exclusive" -- Choose between "desktop" fullscreen or "exclusive" fullscreen mode (string)
 
     t.modules.audio = true              -- Enable the audio module (boolean)
     t.modules.data = true               -- Enable the data module (boolean)
@@ -15,7 +15,7 @@ function love.conf(t)
     t.modules.font = true               -- Enable the font module (boolean)
     t.modules.graphics = true           -- Enable the graphics module (boolean)
     t.modules.image = true              -- Enable the image module (boolean)
-    t.modules.joystick = false          -- Enable the joystick module (boolean)
+    t.modules.joystick = true           -- Enable the joystick module (boolean)
     t.modules.keyboard = true           -- Enable the keyboard module (boolean)
     t.modules.math = true               -- Enable the math module (boolean)
     t.modules.mouse = true              -- Enable the mouse module (boolean)

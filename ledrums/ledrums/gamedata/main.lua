@@ -50,8 +50,6 @@ game.time.seconds = 0
 game.power = {} -- table for game power state
 game.power.state, game.power.percent, game.power.timeleft = love.system.getPowerInfo( )
 
-
-
 -- global clock sync
 clock = {}
 clock.tick = 1
@@ -60,30 +58,8 @@ clock.time = love.timer.getTime()
 clock.lapTock = clock.time
 
 -- define global variables, used in input detection
-triggerReport = ""
 frameElapsed = 0 -- to check on love.update
-mouseCooldown = 0 -- to prevent mouse input during cooldown period (right-stick)
-
--- input states [start]
-dpadState = {}
-fbtnState = {}
-lstkState = {}
-rstkState = {}
-bbtnState = {}
-miscState = {}
-for i = 1,4 do
-	dpadState[i] = ".."
-	fbtnState[i] = ".."
-	lstkState[i] = ".."
-	rstkState[i] = ".."
-	bbtnState[i] = ".."
-	miscState[i] = ".."
-end
--- L3 and R3 buttons added (requires manual edit on gptokeyb file on console)
-miscState[5] = ".."
-miscState[6] = ".."
--- input states [end]
-
+buttonCooldown = 0 -- to prevent key input during cooldown period
 
 -- use this to write blank data for scenes
 function resetData(scene)
@@ -146,10 +122,7 @@ function restoreDefaults()
 		file:close()
 	end
 
-
 end
-
-
 
 	-- load autosaves
 	if love.filesystem.getInfo( "game-time.txt" ) == nil then -- first run of game
@@ -188,9 +161,6 @@ end
 		game.time = love.filesystem.read("game-time.txt")
 	end
 
-
-
-
 -- load scene files here, global as the scenes use them when switching
 scene = {}
 scene[0]   = require "scene-0"   -- Boot Screen
@@ -211,11 +181,13 @@ scene[999] = require "scene-999" -- Exitscreen
 scene.current = 0
 scene.previous = 0
 
-
-
-
 -- one-time setup of game / app, loading assets
 function love.load()
+
+	-- load gamepad
+    local joysticks = love.joystick.getJoysticks()
+    gamepad = joysticks[1]
+
 	-- load fonts
 	monoFont = love.graphics.newFont("JetBrainsMonoNL-Regular.ttf", 10)
     gameFont = love.graphics.newFont("retro-gaming.ttf", 18)
@@ -225,8 +197,6 @@ function love.load()
     redLed = love.graphics.newImage("pic/red-led.png")
     greenLed = love.graphics.newImage("pic/green-led.png")
     greyLed = love.graphics.newImage("pic/grey-led.png")
-    
-
 
     -- initialise all scenes (does only once at the start)
     scene[0].init()
@@ -244,17 +214,14 @@ function love.load()
 	scene[999].init()
 end
 
-
 -- load 1st scene input schema here
 scene[scene.current].input()
 -- start 1st scene
 scene[scene.current].start()
 
-
 -- callback for graceful exit
 function love.quit()
-  	-- autosave all data
-  	
+  	-- autosave data
   	-- save total time played
   	game.time = math.floor(game.time + love.timer.getTime())
 	if game.system == "Others" then
@@ -276,9 +243,9 @@ local tempoMultiplier = 1
 
     frameElapsed = frameElapsed + 1
 
-	-- cooldown when mousemoved
-    if mouseCooldown > 0 then
-    	mouseCooldown = mouseCooldown - 1
+	-- cooldown when keyHeld
+    if buttonCooldown > 0 then
+    	buttonCooldown = buttonCooldown - 1
     end
 
 	-- toggle between playing and not playing
@@ -315,12 +282,15 @@ end
 
 -- to render game state onto the screen, 60 fps
 function love.draw()
+
 	-- load scene draw state here
-	if love.keyboard.isDown("escape") then
-		love.graphics.draw(bgart[scene.current], 0, 0) -- draw regular scene background
+	if gamepad:isGamepadDown("back") then
+		love.graphics.draw(bgart[scene.current], 0, 0) -- draw alt background when SELECT held
 	else
 		love.graphics.draw(bgart[scene.current], 0, 0) -- draw regular scene background
 	end
+
+	-- run draw from current scene
 	scene[scene.current].draw()
 
 end
