@@ -18,7 +18,13 @@ local sceneStartSFX = love.audio.newSource("music/LowEntropy-ExitLoop.ogg", "str
 
 -- K.init is for loading assets for the scene
 function K.init()
-	bgart[999] = love.graphics.newImage("bgart/exitscreen.jpg")
+
+	if game.screenHD then
+		bgart[999] = love.graphics.newImage("bgart/HD-exitscreen.jpg") -- 1280x720
+	else
+		bgart[999] = love.graphics.newImage("bgart/exitscreen.jpg") -- 640x480
+	end
+
 	help[999] = ""
 end
 

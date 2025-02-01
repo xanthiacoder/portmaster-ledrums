@@ -42,6 +42,14 @@ end
 
 game.tooltip = "SELECT + LEFT (left stick) : Save and Quit" -- contextual tip at bottom bar
 
+-- check for HD screen (1280x720)
+local width, height = love.graphics.getDimensions( )
+if width == 1280 then
+	game.screenHD = true
+else
+	game.screenHD = false
+end
+
 game.time = {} -- table for total time played
 game.time.hours = 0
 game.time.minutes = 0
@@ -190,9 +198,11 @@ function love.load()
 
 	-- load fonts
 	monoFont = love.graphics.newFont("JetBrainsMonoNL-Regular.ttf", 10)
+	HDmonoFont = love.graphics.newFont("JetBrainsMonoNL-Regular.ttf", 20)
     gameFont = love.graphics.newFont("retro-gaming.ttf", 18)
     bigFont = love.graphics.newFont("retro-gaming.ttf", 24)
     smallFont = love.graphics.newFont("retro-gaming.ttf", 12)
+    HDsmallFont = love.graphics.newFont("retro-gaming.ttf", 24)
 	-- load global graphics
     redLed = love.graphics.newImage("pic/red-led.png")
     greenLed = love.graphics.newImage("pic/green-led.png")
